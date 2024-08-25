@@ -1,145 +1,95 @@
-# #TWSThreeTierAppChallenge
+Description of the project:-
 
-## Overview
-This repository hosts the `#TWSThreeTierAppChallenge` for the TWS community. 
-The challenge involves deploying a Three-Tier Web Application using ReactJS, NodeJS, and MongoDB, with deployment on AWS EKS. Participants are encouraged to deploy the application, add creative enhancements, and submit a Pull Request (PR). Merged PRs will earn exciting prizes!
+This repository hosts the Three-tier application for the TWS community. The challenge involves deploying a Three-Tier Web Application using ReactJS, NodeJS, and MongoDB, with deployment on AWS EKS.
 
-**Get The Challenge here**
+My Github Project link :- https://github.com/cloud-rohit-1997/Three-tier-appdeploy-To-do-list
+Reference Github link :-  https://github.com/LondheShubham153/TWSThreeTierAppChallenge
+Video link :- https://www.youtube.com/watch?v=YlUa3t9Aaic
 
-[![YouTube Video](https://img.youtube.com/vi/tvWQRTbMS1g/maxresdefault.jpg)](https://youtu.be/tvWQRTbMS1g?si=eki-boMemxr4PU7-)
+![image](https://github.com/user-attachments/assets/a334ba62-5f82-4ce1-807c-6a98b05c6d95)
 
-## Prerequisites
-- Basic knowledge of Docker, and AWS services.
-- An AWS account with necessary permissions.
 
-## Challenge Steps
-- [Application Code](#application-code)
-- [Jenkins Pipeline Code](#jenkins-pipeline-code)
-- [Jenkins Server Terraform](#jenkins-server-terraform)
-- [Kubernetes Manifests Files](#kubernetes-manifests-files)
-- [Project Details](#project-details)
 
-## Application Code
-The `Application-Code` directory contains the source code for the Three-Tier Web Application. Dive into this directory to explore the frontend and backend implementations.
+Pre-requisites to start the project:-
+	1) AWS-CLI Installed and configured
+	2) Docker installed
+	3) Eksctl installed
+	4) Kubectl installed
+	5) Setup EKS Cluster
+	6) Helm installed 
 
-## Jenkins Pipeline Code
-In the `Jenkins-Pipeline-Code` directory, you'll find Jenkins pipeline scripts. These scripts automate the CI/CD process, ensuring smooth integration and deployment of your application.
 
-## Jenkins Server Terraform
-Explore the `Jenkins-Server-TF` directory to find Terraform scripts for setting up the Jenkins Server on AWS. These scripts simplify the infrastructure provisioning process.
+## Steps to Execute the Project
 
-## Kubernetes Manifests Files
-The `Kubernetes-Manifests-Files` directory holds Kubernetes manifests for deploying your application on AWS EKS. Understand and customize these files to suit your project needs.
+### 1. Review the Application Code
+The application utilizes React.js for the frontend, Node.js for the backend, and MongoDB as the database. Review the code on GitHub to understand the implementation details. Engage with the developer as needed to gain insights into the architecture and functionality.
 
-## Project Details
-🛠️ **Tools Explored:**
-- Terraform & AWS CLI for AWS infrastructure
-- Jenkins, Sonarqube, Terraform, Kubectl, and more for CI/CD setup
-- Helm, Prometheus, and Grafana for Monitoring
-- ArgoCD for GitOps practices
+### 2. Create Dockerfiles
+Develop Dockerfiles for both the backend and frontend components of the application. Note that MongoDB will not require a Dockerfile, as it is publicly available on DockerHub.
 
-🚢 **High-Level Overview:**
-- IAM User setup & Terraform magic on AWS
-- Jenkins deployment with AWS integration
-- EKS Cluster creation & Load Balancer configuration
-- Private ECR repositories for secure image management
-- Helm charts for efficient monitoring setup
-- GitOps with ArgoCD - the cherry on top!
+### 3. Push Docker Images to AWS ECR
+Create a private registry in AWS Elastic Container Registry (ECR) for both the frontend and backend. Follow these steps for each component:
+- Log in to the AWS ECR.
+- Build the Docker image.
+- Tag the image appropriately.
+- Push the image to your private ECR repository.
 
-📈 **The journey covered everything from setting up tools to deploying a Three-Tier app, ensuring data persistence, and implementing CI/CD pipelines.**
+### 4. Set Up an EKS Cluster
+Create an Amazon EKS cluster according to the application’s requirements. Ensure that the cluster is properly configured for the application’s deployment.
 
-## Getting Started
-To get started with this project, refer to our [comprehensive guide](https://amanpathakdevops.medium.com/advanced-end-to-end-devsecops-kubernetes-three-tier-project-using-aws-eks-argocd-prometheus-fbbfdb956d1a) that walks you through IAM user setup, infrastructure provisioning, CI/CD pipeline configuration, EKS cluster creation, and more.
+### 5. Prepare the Kubernetes Namespace and Resources
+- Create a separate Kubernetes namespace to deploy the three-tier application.
+- Set up Kubernetes secrets to securely store database credentials.
+- Create PersistentVolume (PV) and PersistentVolumeClaim (PVC) resources as required for storage.
 
-### Step 1: IAM Configuration
-- Create a user `eks-admin` with `AdministratorAccess`.
-- Generate Security Credentials: Access Key and Secret Access Key.
+### 6. Deploy Application Components
+Deploy the database, backend, and frontend components using the appropriate YAML configuration files available in the GitHub repository. Define the necessary services to ensure proper communication between components.
 
-### Step 2: EC2 Setup
-- Launch an Ubuntu instance in your favourite region (eg. region `us-west-2`).
-- SSH into the instance from your local machine.
+### 7. Set Up Ingress and Load Balancer
+To expose the application to the internet, follow these steps to configure an Ingress and deploy an Ingress Controller:
 
-### Step 3: Install AWS CLI v2
-``` shell
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-sudo apt install unzip
-unzip awscliv2.zip
-sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
-aws configure
-```
+1. **Create IAM Policy**:
+   ```bash
+   curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
+   aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+   ```
 
-### Step 4: Install Docker
-``` shell
-sudo apt-get update
-sudo apt install docker.io
-docker ps
-sudo chown $USER /var/run/docker.sock
-```
+2. **Associate IAM OIDC Provider**:
+   ```bash
+   eksctl utils associate-iam-oidc-provider --region=<cluster-region> --cluster=<cluster-name> --approve
+   ```
 
-### Step 5: Install kubectl
-``` shell
-curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
-chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin
-kubectl version --short --client
-```
+3. **Create IAM Service Account**:
+   ```bash
+   eksctl create iamserviceaccount --cluster=<cluster-name> --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<Account-ID>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=<cluster-region>
+   ```
 
-### Step 6: Install eksctl
-``` shell
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-sudo mv /tmp/eksctl /usr/local/bin
-eksctl version
-```
+4. **Install Ingress Controller via Helm**:
+   ```bash
+   sudo snap install helm --classic
+   helm repo add eks https://aws.github.io/eks-charts
+   helm repo update eks
+   helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=<cluster-name> --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+   ```
 
-### Step 7: Setup EKS Cluster
-``` shell
-eksctl create cluster --name three-tier-cluster --region us-west-2 --node-type t2.medium --nodes-min 2 --nodes-max 2
-aws eks update-kubeconfig --region us-west-2 --name three-tier-cluster
-kubectl get nodes
-```
+5. **Verify Deployment**:
+   ```bash
+   kubectl get deployment -n kube-system aws-load-balancer-controller
+   ```
 
-### Step 8: Run Manifests
-``` shell
-kubectl create namespace workshop
-kubectl apply -f .
-kubectl delete -f .
-```
-
-### Step 9: Install AWS Load Balancer
-``` shell
-curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
-aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
-eksctl utils associate-iam-oidc-provider --region=us-west-2 --cluster=three-tier-cluster --approve
-eksctl create iamserviceaccount --cluster=three-tier-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::626072240565:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-west-2
-```
-
-### Step 10: Deploy AWS Load Balancer Controller
-``` shell
-sudo snap install helm --classic
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update eks
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=my-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+### 8. Verify Ingress Controller Deployment
+To ensure the Ingress Controller is deployed correctly, run:
+```bash
 kubectl get deployment -n kube-system aws-load-balancer-controller
-kubectl apply -f full_stack_lb.yaml
 ```
 
-### Cleanup
-- To delete the EKS cluster:
-``` shell
-eksctl delete cluster --name three-tier-cluster --region us-west-2
+### 9. Deploy Ingress Resource
+Create and deploy an `ingress.yaml` file as per your requirements. After deployment, verify the Ingress resource with:
+```bash
+kubectl get ingress -n <namespace>
 ```
+This command will provide the DNS name needed to access your application on the internet.
 
-## Contribution Guidelines
-- Fork the repository and create your feature branch.
-- Deploy the application, adding your creative enhancements.
-- Ensure your code adheres to the project's style and contribution guidelines.
-- Submit a Pull Request with a detailed description of your changes.
+--- 
 
-## Rewards
-- Successful PR merges will be eligible for exciting prizes!
-
-## Support
-For any queries or issues, please open an issue in the repository.
-
----
-Happy Learning! 🚀👨‍💻👩‍💻
+This version presents the steps in a more formal and detailed manner, making it suitable for a professional README.
