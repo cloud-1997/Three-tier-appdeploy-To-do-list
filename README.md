@@ -88,8 +88,8 @@ Create and deploy an `ingress.yaml` file as per your requirements. After deploym
 ```bash
 kubectl get ingress -n <namespace>
 ```
-This command will provide the DNS name needed to access your application on the internet.
+This command will provide the DNS name/ Address as shown below in the screenshot to register it in your domain needed to access your application on the internet.
+![image](https://github.com/user-attachments/assets/23e0b736-071a-4b48-859c-793dada57fcb)
 
---- 
 
-This version presents the steps in a more formal and detailed manner, making it suitable for a professional README.
+
