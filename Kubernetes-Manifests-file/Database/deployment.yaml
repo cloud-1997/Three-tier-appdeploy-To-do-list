@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-  namespace: three-tier
+metadata:
+  namespace: workshop
   name: mongodb
-spec: 
+spec:
   replicas: 1
   selector:
     matchLabels:
       app: mongodb
   template:
     metadata:
-      labels: 
+      labels:
         app: mongodb
-    spec: 
+    spec:
       containers:
       - name: mon
         image: mongo:4.4.6
@@ -26,7 +26,7 @@ spec:
             - "0.0.0.0"
         ports:
         - containerPort: 27017
-        env: 
+        env:
           - name: MONGO_INITDB_ROOT_USERNAME
             valueFrom:
               secretKeyRef:
@@ -40,7 +40,7 @@ spec:
         volumeMounts:
           - name: mongo-volume
             mountPath: /data/db
-      volumes: 
+      volumes:
       - name: mongo-volume
         persistentVolumeClaim:
           claimName: mongo-volume-claim
