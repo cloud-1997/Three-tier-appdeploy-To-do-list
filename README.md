@@ -2,7 +2,7 @@ Description of the project:-
 
 This repository hosts the Three-tier application for the TWS community. The challenge involves deploying a Three-Tier Web Application using ReactJS, NodeJS, and MongoDB, with deployment on AWS EKS.
 
-My Github Project link :- https://github.com/cloud-rohit-1997/Three-tier-appdeploy-To-do-list
+My Github Project link :- https://github.com/cloud-1997/Three-tier-appdeploy-To-do-list
 Reference Github link :-  https://github.com/LondheShubham153/TWSThreeTierAppChallenge
 Video link :- https://www.youtube.com/watch?v=YlUa3t9Aaic
 
